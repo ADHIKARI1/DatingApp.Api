@@ -16,11 +16,11 @@ export class ValueComponent implements OnInit {
     this.getValues();
   }
 
-  getValues(){
-    this.http.get('https://localhost:44326/api/values').subscribe(response =>{
+  getValues(){   
+    /*this.http.get('https://localhost:44326/api/values').subscribe(response =>{
      // console.log(response);
      this.values = response;
-    });
+    });*/
   }
 
 }
