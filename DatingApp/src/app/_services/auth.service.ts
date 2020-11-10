@@ -1,6 +1,9 @@
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse, HttpErrorResponse  } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+//import { Observable} from 'rxjs/observable';
+import { EmptyError, Observable, throwError } from "rxjs";  
+import { map , catchError} from 'rxjs/operators';
+
 
 
 @Injectable({
@@ -41,10 +44,30 @@ private setHeaders(): HttpHeaders {
 
   register(model : any)
   {
-    const url = this.baseUrl+'register'; 
-    return this.http.post(url, model, { headers: this.setHeaders() });
+    const url = this.baseUrl+'register';    
+    const http$ = this.http.post(url, model, { headers: this.setHeaders() });
+    /*http$.subscribe(
+      () =>{},
+      err => { this.handleError(err) }); */ 
+    return http$;
   }
 
+  private handleError(err : any){  
+      const serverError =  err;     
+      let modelStateError = '';  
+      if (serverError.error instanceof ErrorEvent)
+      {
+        modelStateError += 'Error'+serverError.header.get('Application-Error');
+      }
+      else
+      {
+        for (let [key, value] of Object.entries(serverError.error.errors)) {        
+          modelStateError += value[0]+'\n';
+        }      
+        console.log(modelStateError);
+      }
+     // return throwError(modelStateError || 'Server Error');
+  }
 
 
 }

@@ -31,6 +31,8 @@ namespace DatingApp.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody]UserForRegisterDto userRegisterDto)
         {
+            //test throw
+            //throw new Exception("nooo");
             userRegisterDto.Username = userRegisterDto.Username.ToLower();
             if (await _authRepo.UserExists(userRegisterDto.Username))
                 ModelState.AddModelError("Username", "Username is already taken.");
@@ -54,27 +56,36 @@ namespace DatingApp.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserForLoginDto userLoginDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            //find the user
-            var userFromRepo = await _authRepo.Login(userLoginDto.Username.ToLower(), userLoginDto.Password);
-            if (userFromRepo == null)
-                return Unauthorized();
-            //generate the token if user found
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Secret").Value);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            try
             {
-                Subject = new ClaimsIdentity(new Claim[] {
-                    new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
-                    new Claim(ClaimTypes.Name, userFromRepo.Username)
-                }),
-                Expires = DateTime.Now.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)                
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-            return Ok(new { tokenString});
+                //test throw
+                //throw new Exception("nooo");
+                if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+                //find the user
+                var userFromRepo = await _authRepo.Login(userLoginDto.Username.ToLower(), userLoginDto.Password);
+                if (userFromRepo == null)
+                    return Unauthorized();
+                //generate the token if user found
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Secret").Value);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[] {
+                        new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
+                        new Claim(ClaimTypes.Name, userFromRepo.Username)
+                    }),
+                    Expires = DateTime.Now.AddDays(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)                
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+                return Ok(new { tokenString});
+            }
+            catch
+            {
+              return StatusCode(500, "oops, Something went wrong!, contact developers");
+            }
         }
     }
 }
