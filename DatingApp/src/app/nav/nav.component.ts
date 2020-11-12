@@ -1,7 +1,6 @@
 import { AlertifyService } from './../_services/alertify.service';
 import { AuthService } from './../_services/auth.service';
 import { Component, OnInit } from '@angular/core';
-
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -34,9 +33,10 @@ export class NavComponent implements OnInit {
 
   loggedIn() : any
   {
-    const token =  localStorage.getItem('token');
+    //const token =  localStorage.getItem('token');
     //use double not -  to type cast to boolean while using it
-    return !!token
+    //return !!token
+    return this._authService.loggedIn();
   }
 
   private handleError(err : any){  
@@ -48,9 +48,15 @@ export class NavComponent implements OnInit {
     }
     else
     {
-      for (let [key, value] of Object.entries(serverError.error.errors)) {        
-        modelStateError += value[0]+'\n';
-      }      
+      if(serverError.error.errors != null)
+      {
+        for (let [key, value] of Object.entries(serverError.error.errors)) {        
+          modelStateError += value[0]+'\n';
+        }      
+      }
+      if(serverError.error.status == 401)
+      modelStateError += "username or password incorrect<br/> no user found!";
+      
       this._aleritify.error(modelStateError);      
     }   
 }

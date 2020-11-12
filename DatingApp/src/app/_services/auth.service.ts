@@ -3,19 +3,26 @@ import { Injectable } from '@angular/core';
 //import { Observable} from 'rxjs/observable';
 import { EmptyError, Observable, throwError } from "rxjs";  
 import { map , catchError} from 'rxjs/operators';
+import { JwtHelperService } from "@auth0/angular-jwt";
 
-
+export function tokenGetter(access_token : string) {
+  return localStorage.getItem(access_token);
+}
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
 
 baseUrl = 'https://localhost:5001/api/auth/';
 userToken : any;
 user : any;
+decodeToken : any;
+//jwtHelper = new JwtHelperService();
 
-constructor(private http: HttpClient) { }
+
+constructor(private http: HttpClient, private jwtHelper: JwtHelperService) { }
   
 private setHeaders(): HttpHeaders {
   const headersConfig = {
@@ -37,6 +44,8 @@ private setHeaders(): HttpHeaders {
         if(this.user)
         {
           localStorage.setItem('token', this.user.tokenString);
+          this.decodeToken = this.jwtHelper.decodeToken(this.user.tokenString);
+          console.log(this.decodeToken);
           this.userToken = this.user.tokenString;
         }
       }));
@@ -52,7 +61,20 @@ private setHeaders(): HttpHeaders {
     return http$;
   }
 
-  private handleError(err : any){  
+loggedIn()
+{  
+  return this.tokenNotExpired('token');
+}
+
+private tokenNotExpired(token : string)
+{
+  const item: string = tokenGetter(token);
+  return item != null && !this.jwtHelper.isTokenExpired(item);
+}
+
+
+
+private handleError(err : any){  
       const serverError =  err;     
       let modelStateError = '';  
       if (serverError.error instanceof ErrorEvent)
@@ -67,7 +89,7 @@ private setHeaders(): HttpHeaders {
         console.log(modelStateError);
       }
      // return throwError(modelStateError || 'Server Error');
-  }
+}
 
 
 }
