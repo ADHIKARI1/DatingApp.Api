@@ -18,9 +18,10 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { MemberListComponent } from './member-list/member-list.component';
 import { ListsComponent } from './lists/lists.component';
 import { MessagesComponent } from './messages/messages.component';
+import { AuthGuard } from './_guards/auth.guard';
 
 export function tokenGetter() {
-  return localStorage.getItem("access_token");
+  return localStorage.getItem("access_token");  
 }
 
 const JWT_Module_Options: JwtModuleOptions = {
@@ -49,7 +50,7 @@ const JWT_Module_Options: JwtModuleOptions = {
     BrowserAnimationsModule,
     BsDropdownModule.forRoot()
   ],
-  providers: [AuthService, AlertifyService],
+  providers: [AuthService, AlertifyService, AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -2,6 +2,7 @@ import { AlertifyService } from './../_services/alertify.service';
 import { AuthService } from './../_services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-nav',
@@ -11,7 +12,7 @@ import { NgForm } from '@angular/forms';
 export class NavComponent implements OnInit {
 
   model: any = {};
-  constructor(private _authService: AuthService, private _aleritify: AlertifyService) { }
+  constructor(private _authService: AuthService, private _aleritify: AlertifyService, private router: Router) { }
 
   ngOnInit() {
   }
@@ -21,6 +22,8 @@ export class NavComponent implements OnInit {
       this._aleritify.success('Logged in successfully');
     }, error => {
       this.handleError(error);
+    },()=>{
+      this.router.navigate(['/members']);
     });
   }
 
@@ -29,6 +32,7 @@ export class NavComponent implements OnInit {
     this._authService.userToken = null;
     localStorage.removeItem('token');
     this._aleritify.message('logged out');
+    this.router.navigate(['/home']);
   }
 
   loggedIn() : any
@@ -55,7 +59,11 @@ export class NavComponent implements OnInit {
         }      
       }
       if(serverError.error.status == 401)
-      modelStateError += "username or password incorrect<br/> no user found!";
+        modelStateError += "username or password incorrect<br/> no user found!";
+      else
+        modelStateError += "Failed to login!";
+
+      
       
       this._aleritify.error(modelStateError);      
     }   
