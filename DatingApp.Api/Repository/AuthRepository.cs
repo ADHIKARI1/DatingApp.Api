@@ -47,7 +47,7 @@ namespace DatingApp.Api.Repository
             byte[] passwordHash, passwordSalt;
             //out keyword use to pass variable by referenece type 
             //it is like parameters effectively allow methods to have multiple return values if pass with out
-            createPasswordHash(password, out passwordHash, out passwordSalt);
+            CreatePasswordHash(password, out passwordHash, out passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
@@ -56,7 +56,7 @@ namespace DatingApp.Api.Repository
             return user;
         }
 
-        private void createPasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
