@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using DatingApp.Api.Dtos;
 using DatingApp.Api.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApp.Api.Controllers
@@ -26,7 +26,7 @@ namespace DatingApp.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
             var users = await _datingRepo.GetUsers();
             var usersDto = _mapper.Map<IEnumerable<UserForListDto>>(users);
@@ -34,11 +34,32 @@ namespace DatingApp.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetUser(int id)
+        public async Task<IActionResult> GetUser(int id)
         {
             var user = await _datingRepo.GetUser(id);
             var userDto = _mapper.Map<UserForDetailedDto>(user);
             return Ok(userDto);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserForUpdateDto userForUpdateDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var user = await _datingRepo.GetUser(id);
+
+            if (user == null)
+                return NotFound($"Could not found user with ID of {id}");
+            if (currentUserId != user.Id)
+                return Unauthorized();
+
+            _mapper.Map(userForUpdateDto, user);
+            if (await _datingRepo.SaveAll())
+                return NoContent();
+
+            throw new Exception($"Updating user{id} failed to save!");
+
         }
     }
 }

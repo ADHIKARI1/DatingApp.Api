@@ -7,8 +7,7 @@ import { AuthService } from '../_services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
- 
+export class AuthGuard implements CanActivate { 
   constructor(private _authService: AuthService, private _aleritify: AlertifyService, private router: Router) {   }
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if(this._authService.loggedIn())
@@ -17,6 +16,5 @@ export class AuthGuard implements CanActivate {
     this._aleritify.error('Please logging to access.');
     this.router.navigate(['/home']);
     return false;
-  }
-  
+  }  
 }
